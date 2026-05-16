@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CardVault</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+</head>
+<body>
+
+  <!-- ========== HOME: TCG一覧 ========== -->
+  <div class="page active" id="p-home">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="logo-wrap">
+          <div class="logo-icon"><i class="ti ti-cards"></i></div>
+          <span class="app-name">CardVault</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" aria-label="通知"><i class="ti ti-bell"></i></button>
+          <button class="icon-btn" aria-label="設定"><i class="ti ti-settings"></i></button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="カード名・セット名で検索" id="home-search" oninput="homeSearch()" />
+      </div>
+    </div>
+
+    <div class="content" id="home-content">
+      <div class="section-label">マイコレクション</div>
+      <div class="tcg-list" id="tcg-list"></div>
+      <div class="add-tcg-wrap">
+        <button class="add-tcg-btn" onclick="openAddSheet()">
+          <i class="ti ti-plus"></i> TCGを追加する
+        </button>
+      </div>
+    </div>
+
+    <nav class="navbar">
+      <div class="nav-item active" onclick="setNav(this,'home')"><i class="ti ti-layout-grid"></i><span>コレクション</span></div>
+      <div class="nav-item" onclick="setNav(this,'scan')"><i class="ti ti-scan"></i><span>スキャン</span></div>
+      <div class="nav-item" onclick="setNav(this,'stats')"><i class="ti ti-chart-bar"></i><span>統計</span></div>
+      <div class="nav-item" onclick="setNav(this,'mypage')"><i class="ti ti-user"></i><span>マイページ</span></div>
+    </nav>
+  </div>
+
+  <!-- ========== CARDS: カード一覧 ========== -->
+  <div class="page slide-right" id="p-cards">
+    <div class="topbar">
+      <div class="topbar-row">
+        <button class="back-btn" onclick="goHome()" aria-label="戻る"><i class="ti ti-arrow-left"></i></button>
+        <span class="page-title" id="cards-title">カード一覧</span>
+        <button class="icon-btn" aria-label="フィルター"><i class="ti ti-adjustments-horizontal"></i></button>
+      </div>
+      <div class="search-bar">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="カード名で絞り込み" id="card-search" oninput="filterCards()" />
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-lbl">総枚数</div><div class="stat-val" id="s-total">0</div></div>
+      <div class="stat-box"><div class="stat-lbl">種類</div><div class="stat-val" id="s-kinds">0</div></div>
+    </div>
+
+    <div class="filter-scroll">
+      <button class="chip active" onclick="setChip(this,'all')">すべて</button>
+      <button class="chip" onclick="setChip(this,'SR')">SR・SA</button>
+      <button class="chip" onclick="setChip(this,'RR')">RR・UR</button>
+      <button class="chip" onclick="setChip(this,'R')">R</button>
+      <button class="chip" onclick="setChip(this,'C')">C・U</button>
+      <button class="chip" onclick="setChip(this,'dupe')">重複あり</button>
+    </div>
+
+    <div class="card-grid" id="card-grid"></div>
+
+    <button class="scan-fab" onclick="openScanFromCards()" aria-label="カードをスキャン">
+      <i class="ti ti-scan"></i>
+    </button>
+
+    <nav class="navbar">
+      <div class="nav-item active"><i class="ti ti-layout-grid"></i><span>コレクション</span></div>
+      <div class="nav-item"><i class="ti ti-scan"></i><span>スキャン</span></div>
+      <div class="nav-item"><i class="ti ti-chart-bar"></i><span>統計</span></div>
+      <div class="nav-item"><i class="ti ti-user"></i><span>マイページ</span></div>
+    </nav>
+  </div>
+
+  <!-- ========== DETAIL: カード詳細 ========== -->
+  <div class="page slide-right" id="p-detail">
+    <div class="topbar">
+      <div class="topbar-row">
+        <button class="back-btn" onclick="goCards()" aria-label="戻る"><i class="ti ti-arrow-left"></i></button>
+        <span class="page-title" id="d-title">カード詳細</span>
+        <button class="icon-btn" aria-label="シェア"><i class="ti ti-share"></i></button>
+      </div>
+    </div>
+
+    <div class="detail-art" id="d-art"></div>
+
+    <div class="detail-body">
+      <div class="detail-name" id="d-name"></div>
+      <div class="detail-set-label" id="d-set-label"></div>
+
+      <div class="qty-wrap">
+        <div>
+          <div class="qty-label">所持枚数</div>
+          <div class="qty-sublabel">同じカードをまとめて管理</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <div class="qty-num" id="d-qty">1</div>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-row"><span class="dr-key">レアリティ</span><span class="dr-val gold" id="d-rarity"></span></div>
+        <div class="detail-row"><span class="dr-key">タイプ</span><span class="dr-val" id="d-type"></span></div>
+        <div class="detail-row"><span class="dr-key">セット</span><span class="dr-val" id="d-setname"></span></div>
+        <div class="detail-row"><span class="dr-key">カード番号</span><span class="dr-val" id="d-num"></span></div>
+        <div class="detail-row"><span class="dr-key">取得日</span><span class="dr-val" id="d-date"></span></div>
+      </div>
+
+      <div class="action-grid">
+        <button class="action-btn"><i class="ti ti-tag"></i> 売値を記録</button>
+        <button class="action-btn danger" onclick="deleteCard()"><i class="ti ti-trash"></i> 削除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ADD SHEET: TCG追加 ========== -->
+  <div class="overlay" id="add-overlay" onclick="overlayClick(event)">
+    <div class="sheet" id="add-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">TCGを追加</div>
+      <div class="sheet-sub">追加するTCGを選んでください</div>
+      <div class="preset-grid" id="preset-grid"></div>
+      <div class="custom-row">
+        <div class="custom-label">または名前を入力</div>
+        <input class="custom-input" id="custom-input" type="text" placeholder="例：デュエル・マスターズ" oninput="onCustomInput()" />
+      </div>
+      <button class="sheet-add-btn" id="sheet-add-btn" disabled onclick="doAddTCG()">追加する</button>
+      <button class="cancel-link" onclick="closeAddSheet()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- ========== CONFIRM TOAST ========== -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
