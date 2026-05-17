@@ -5,47 +5,24 @@
 // ===== DATA =====
 
 const TCG_PRESETS_ADD = [
-  { name: 'デュエル・マスターズ', maker: 'Takara Tomy', emoji: '🌀', color: '#3B82F622' },
-  { name: 'バトルスピリッツ',      maker: 'Bandai',       emoji: '⚡', color: '#EF444422' },
-  { name: 'シャドウバース',        maker: 'Cygames',      emoji: '🃏', color: '#7C3AED22' },
-  { name: 'Flesh and Blood',      maker: 'LSS',          emoji: '🗡️', color: '#92400E22' },
-  { name: 'Dragon Ball Super',    maker: 'Bandai',       emoji: '🔴', color: '#FF6B0022' },
-  { name: 'Disney Lorcana',       maker: 'Ravensburger', emoji: '✨', color: '#3B82F622' },
+  { name: 'ポケモンカード',             maker: 'Nintendo',     emoji: '🎴', color: '#FFD70022' },
+  { name: 'マジック: ザ・ギャザリング', maker: 'Wizards',      emoji: '⚔️', color: '#8B451322' },
+  { name: 'ワンピースカード',           maker: 'Bandai',       emoji: '🏴‍☠️', color: '#FF444422' },
+  { name: '遊戯王',                    maker: 'Konami',       emoji: '🐉', color: '#6A0DAD22' },
+  { name: 'ヴァイスシュヴァルツ',       maker: 'Bushiroad',    emoji: '💫', color: '#FF69B422' },
+  { name: 'デュエル・マスターズ',       maker: 'Takara Tomy',  emoji: '🌀', color: '#3B82F622' },
+  { name: 'バトルスピリッツ',           maker: 'Bandai',       emoji: '⚡', color: '#EF444422' },
+  { name: 'Dragon Ball Super',         maker: 'Bandai',       emoji: '🔴', color: '#FF6B0022' },
+  { name: 'Disney Lorcana',            maker: 'Ravensburger', emoji: '✨', color: '#60A5FA22' },
 ];
 
 // ローカルストレージキー
 const LS_TCGS  = 'cv_tcgs';
 const LS_CARDS = 'cv_cards';
 
-// デフォルトTCGデータ
-const DEFAULT_TCGS = [
-  { id: 'poke', name: 'ポケモンカード', maker: 'Nintendo',              emoji: '🎴', color: '#FFD70022' },
-  { id: 'mtg',  name: 'マジック: ザ・ギャザリング', maker: 'Wizards',  emoji: '⚔️', color: '#8B451322' },
-  { id: 'op',   name: 'ワンピースカード', maker: 'Bandai',             emoji: '🏴‍☠️', color: '#FF444422' },
-  { id: 'ygo',  name: '遊戯王',          maker: 'Konami',              emoji: '🐉', color: '#6A0DAD22' },
-  { id: 'ws',   name: 'ヴァイスシュヴァルツ', maker: 'Bushiroad',     emoji: '💫', color: '#FF69B422' },
-];
-
-// デフォルトカードデータ
-const DEFAULT_CARDS = [
-  { id:'c1',  tcgId:'poke', name:'リザードン ex',  set:'スカーレット',     num:'006/064', r:'SR', type:'炎',     art:'🔥', bg:'#FF6B3522', cnt:2, date:'2025年3月12日' },
-  { id:'c2',  tcgId:'poke', name:'ピカチュウ ex',  set:'ポケモン151',      num:'025/165', r:'RR', type:'電気',   art:'⚡', bg:'#FFD70022', cnt:1, date:'2025年1月5日' },
-  { id:'c3',  tcgId:'poke', name:'ルチャブル',     set:'151',              num:'056/165', r:'C',  type:'格闘',   art:'🥊', bg:'#E8404022', cnt:4, date:'2025年1月5日' },
-  { id:'c4',  tcgId:'poke', name:'ミュウ ex',      set:'ポケモン151',      num:'151/165', r:'SR', type:'エスパー',art:'✨', bg:'#F9A8D422', cnt:1, date:'2024年12月20日' },
-  { id:'c5',  tcgId:'poke', name:'ゲッコウガ',     set:'レイジングサーフ', num:'091/100', r:'R',  type:'水',     art:'💧', bg:'#3B82F622', cnt:3, date:'2025年2月14日' },
-  { id:'c6',  tcgId:'poke', name:'カイリュー',     set:'ナイトワンダラー', num:'049/064', r:'RR', type:'ドラゴン',art:'🐲', bg:'#6366F122', cnt:2, date:'2025年4月1日' },
-  { id:'c7',  tcgId:'poke', name:'メタグロス ex',  set:'クリムゾンヘイズ', num:'078/066', r:'SR', type:'鋼',     art:'🔩', bg:'#94A3B822', cnt:1, date:'2025年2月28日' },
-  { id:'c8',  tcgId:'poke', name:'ニャオハ',       set:'スカーレット',     num:'001/064', r:'C',  type:'草',     art:'🌿', bg:'#22C55E22', cnt:5, date:'2025年3月12日' },
-  { id:'c9',  tcgId:'poke', name:'テラパゴス ex',  set:'テラスタルフェス', num:'007/016', r:'RR', type:'ノーマル',art:'🔮', bg:'#A855F722', cnt:1, date:'2025年5月1日' },
-  { id:'c10', tcgId:'poke', name:'アンフィーラス', set:'スノーハザード',   num:'062/100', r:'R',  type:'水',     art:'🐛', bg:'#2563EB22', cnt:2, date:'2025年1月18日' },
-  { id:'c11', tcgId:'mtg',  name:'Black Lotus',    set:'Alpha',            num:'232/295', r:'R',  type:'アーティファクト', art:'🖤', bg:'#1a1a2e22', cnt:1, date:'2024年11月10日' },
-  { id:'c12', tcgId:'mtg',  name:'Llanowar Elves', set:'M19',              num:'168/280', r:'C',  type:'クリーチャー', art:'🧝', bg:'#22C55E22', cnt:4, date:'2025年1月20日' },
-  { id:'c13', tcgId:'op',   name:'モンキー・D・ルフィ', set:'OP01',       num:'OP01-060', r:'SR', type:'キャラ', art:'👒', bg:'#FF444422', cnt:2, date:'2025年2月5日' },
-  { id:'c14', tcgId:'op',   name:'ゾロ',           set:'OP01',             num:'OP01-118', r:'R',  type:'キャラ', art:'⚔️', bg:'#22C55E22', cnt:3, date:'2025年2月5日' },
-  { id:'c15', tcgId:'ygo',  name:'ブラック・マジシャン', set:'LEGEND OF BLUE EYES', num:'LOB-005', r:'SR', type:'魔法使い族', art:'🧙', bg:'#6A0DAD22', cnt:1, date:'2024年10月3日' },
-  { id:'c16', tcgId:'ygo',  name:'青眼の白龍',    set:'LEGEND OF BLUE EYES', num:'LOB-001', r:'SR', type:'ドラゴン族', art:'🐉', bg:'#3B82F622', cnt:2, date:'2024年10月3日' },
-  { id:'c17', tcgId:'ws',   name:'エミリア',       set:'Re:Zero',           num:'RZ/S55-001', r:'RR', type:'キャラ', art:'👸', bg:'#60A5FA22', cnt:1, date:'2025年3月22日' },
-];
+// デフォルトは空
+const DEFAULT_TCGS  = [];
+const DEFAULT_CARDS = [];
 
 // ===== STATE =====
 let tcgs        = loadLS(LS_TCGS,  DEFAULT_TCGS);
@@ -138,6 +115,15 @@ function goDetail(cardId) {
 // ===== TCG LIST =====
 function renderTCGList() {
   const list = document.getElementById('tcg-list');
+  if (tcgs.length === 0) {
+    list.innerHTML = `
+      <div style="text-align:center;padding:48px 16px;color:var(--text-tertiary);">
+        <div style="font-size:48px;margin-bottom:12px;">🎴</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">TCGがまだありません</div>
+        <div style="font-size:13px;">下の「TCGを追加する」から始めましょう</div>
+      </div>`;
+    return;
+  }
   list.innerHTML = tcgs.map(t => {
     const cards = allCards.filter(c => c.tcgId === t.id);
     const total = cards.reduce((s, c) => s + c.cnt, 0);
