@@ -2,154 +2,314 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>CardVault</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
 </head>
 <body>
 
-  <!-- ========== HOME: TCG一覧 ========== -->
-  <div class="page active" id="p-home">
-    <div class="topbar">
-      <div class="topbar-row">
-        <div class="logo-wrap">
-          <div class="logo-icon"><i class="ti ti-cards"></i></div>
-          <span class="app-name">CardVault</span>
-        </div>
-        <div class="topbar-actions">
-          <button class="icon-btn" aria-label="通知"><i class="ti ti-bell"></i></button>
-          <button class="icon-btn" aria-label="設定"><i class="ti ti-settings"></i></button>
-        </div>
-      </div>
-      <div class="search-bar">
-        <i class="ti ti-search"></i>
-        <input type="text" placeholder="カード名・セット名で検索" id="home-search" oninput="homeSearch()" />
-      </div>
+<!-- API KEY SETUP -->
+<div class="page active" id="p-apikey">
+  <div class="apikey-wrap">
+    <div class="apikey-logo"><i class="ti ti-cards"></i></div>
+    <div class="apikey-title">CardVault</div>
+    <div class="apikey-sub">スキャン機能を使うには<br>Gemini APIキーが必要です</div>
+    <div class="apikey-steps">
+      <div class="apikey-step"><span class="step-num">1</span><span><a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> を開く</span></div>
+      <div class="apikey-step"><span class="step-num">2</span><span>Googleアカウントでログイン</span></div>
+      <div class="apikey-step"><span class="step-num">3</span><span>「Create API key」でキーを取得</span></div>
+      <div class="apikey-step"><span class="step-num">4</span><span>下にAPIキーを貼り付ける</span></div>
     </div>
-
-    <div class="content" id="home-content">
-      <div class="section-label">マイコレクション</div>
-      <div class="tcg-list" id="tcg-list"></div>
-      <div class="add-tcg-wrap">
-        <button class="add-tcg-btn" onclick="openAddSheet()">
-          <i class="ti ti-plus"></i> TCGを追加する
-        </button>
-      </div>
-    </div>
-
-    <nav class="navbar">
-      <div class="nav-item active" onclick="setNav(this,'home')"><i class="ti ti-layout-grid"></i><span>コレクション</span></div>
-      <div class="nav-item" onclick="setNav(this,'scan')"><i class="ti ti-scan"></i><span>スキャン</span></div>
-      <div class="nav-item" onclick="setNav(this,'stats')"><i class="ti ti-chart-bar"></i><span>統計</span></div>
-      <div class="nav-item" onclick="setNav(this,'mypage')"><i class="ti ti-user"></i><span>マイページ</span></div>
-    </nav>
+    <input class="apikey-input" id="apikey-input" type="password" placeholder="AIza..." oninput="onApiKeyInput()" />
+    <button class="apikey-btn" id="apikey-btn" disabled onclick="saveApiKey()">保存して始める</button>
+    <button class="apikey-skip" onclick="skipApiKey()">スキャンなしで使う</button>
   </div>
+</div>
 
-  <!-- ========== CARDS: カード一覧 ========== -->
-  <div class="page slide-right" id="p-cards">
-    <div class="topbar">
-      <div class="topbar-row">
-        <button class="back-btn" onclick="goHome()" aria-label="戻る"><i class="ti ti-arrow-left"></i></button>
-        <span class="page-title" id="cards-title">カード一覧</span>
-        <button class="icon-btn" aria-label="フィルター"><i class="ti ti-adjustments-horizontal"></i></button>
+<!-- HOME -->
+<div class="page slide-right" id="p-home">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="logo-wrap">
+        <div class="logo-icon"><i class="ti ti-cards"></i></div>
+        <span class="app-name">CardVault</span>
       </div>
-      <div class="search-bar">
-        <i class="ti ti-search"></i>
-        <input type="text" placeholder="カード名で絞り込み" id="card-search" oninput="filterCards()" />
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-lbl">総枚数</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat-box"><div class="stat-lbl">種類</div><div class="stat-val" id="s-kinds">0</div></div>
-    </div>
-
-    <div class="filter-scroll">
-      <button class="chip active" onclick="setChip(this,'all')">すべて</button>
-      <button class="chip" onclick="setChip(this,'SR')">SR・SA</button>
-      <button class="chip" onclick="setChip(this,'RR')">RR・UR</button>
-      <button class="chip" onclick="setChip(this,'R')">R</button>
-      <button class="chip" onclick="setChip(this,'C')">C・U</button>
-      <button class="chip" onclick="setChip(this,'dupe')">重複あり</button>
-    </div>
-
-    <div class="card-grid" id="card-grid"></div>
-
-    <button class="scan-fab" onclick="openScanFromCards()" aria-label="カードをスキャン">
-      <i class="ti ti-scan"></i>
-    </button>
-
-    <nav class="navbar">
-      <div class="nav-item active"><i class="ti ti-layout-grid"></i><span>コレクション</span></div>
-      <div class="nav-item"><i class="ti ti-scan"></i><span>スキャン</span></div>
-      <div class="nav-item"><i class="ti ti-chart-bar"></i><span>統計</span></div>
-      <div class="nav-item"><i class="ti ti-user"></i><span>マイページ</span></div>
-    </nav>
-  </div>
-
-  <!-- ========== DETAIL: カード詳細 ========== -->
-  <div class="page slide-right" id="p-detail">
-    <div class="topbar">
-      <div class="topbar-row">
-        <button class="back-btn" onclick="goCards()" aria-label="戻る"><i class="ti ti-arrow-left"></i></button>
-        <span class="page-title" id="d-title">カード詳細</span>
-        <button class="icon-btn" aria-label="シェア"><i class="ti ti-share"></i></button>
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="navTo('settings')" aria-label="設定"><i class="ti ti-settings"></i></button>
       </div>
     </div>
-
-    <div class="detail-art" id="d-art"></div>
-
-    <div class="detail-body">
-      <div class="detail-name" id="d-name"></div>
-      <div class="detail-set-label" id="d-set-label"></div>
-
-      <div class="qty-wrap">
-        <div>
-          <div class="qty-label">所持枚数</div>
-          <div class="qty-sublabel">同じカードをまとめて管理</div>
-        </div>
-        <div class="qty-ctrl">
-          <button class="qty-btn" onclick="changeQty(-1)">−</button>
-          <div class="qty-num" id="d-qty">1</div>
-          <button class="qty-btn" onclick="changeQty(1)">+</button>
-        </div>
-      </div>
-
-      <div class="detail-section">
-        <div class="detail-row"><span class="dr-key">レアリティ</span><span class="dr-val gold" id="d-rarity"></span></div>
-        <div class="detail-row"><span class="dr-key">タイプ</span><span class="dr-val" id="d-type"></span></div>
-        <div class="detail-row"><span class="dr-key">セット</span><span class="dr-val" id="d-setname"></span></div>
-        <div class="detail-row"><span class="dr-key">カード番号</span><span class="dr-val" id="d-num"></span></div>
-        <div class="detail-row"><span class="dr-key">取得日</span><span class="dr-val" id="d-date"></span></div>
-      </div>
-
-      <div class="action-grid">
-        <button class="action-btn"><i class="ti ti-tag"></i> 売値を記録</button>
-        <button class="action-btn danger" onclick="deleteCard()"><i class="ti ti-trash"></i> 削除</button>
-      </div>
+    <div class="search-bar">
+      <i class="ti ti-search"></i>
+      <input type="text" placeholder="TCG名で検索" id="home-search" oninput="homeSearch()" />
     </div>
   </div>
-
-  <!-- ========== ADD SHEET: TCG追加 ========== -->
-  <div class="overlay" id="add-overlay" onclick="overlayClick(event)">
-    <div class="sheet" id="add-sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">TCGを追加</div>
-      <div class="sheet-sub">追加するTCGを選んでください</div>
-      <div class="preset-grid" id="preset-grid"></div>
-      <div class="custom-row">
-        <div class="custom-label">または名前を入力</div>
-        <input class="custom-input" id="custom-input" type="text" placeholder="例：デュエル・マスターズ" oninput="onCustomInput()" />
-      </div>
-      <button class="sheet-add-btn" id="sheet-add-btn" disabled onclick="doAddTCG()">追加する</button>
-      <button class="cancel-link" onclick="closeAddSheet()">キャンセル</button>
+  <div class="content">
+    <div class="section-label">マイコレクション</div>
+    <div id="tcg-list"></div>
+    <div class="add-tcg-wrap">
+      <button class="add-tcg-btn" onclick="openOverlay('add-tcg-overlay')">
+        <i class="ti ti-plus"></i> TCGを追加する
+      </button>
     </div>
   </div>
+  <nav class="navbar">
+    <div class="nav-item active" onclick="navTab(this,'home')"><i class="ti ti-layout-grid"></i><span>コレクション</span></div>
+    <div class="nav-item" onclick="navTab(this,'scan')"><i class="ti ti-scan"></i><span>スキャン</span></div>
+    <div class="nav-item" onclick="navTab(this,'stats')"><i class="ti ti-chart-bar"></i><span>統計</span></div>
+    <div class="nav-item" onclick="navTab(this,'mypage')"><i class="ti ti-user"></i><span>マイページ</span></div>
+  </nav>
+</div>
 
-  <!-- ========== CONFIRM TOAST ========== -->
-  <div class="toast" id="toast"></div>
+<!-- CARDS -->
+<div class="page slide-right" id="p-cards">
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn" onclick="navTo('home')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title" id="cards-title">カード一覧</span>
+      <button class="icon-btn" onclick="navTo('scan')" aria-label="スキャン"><i class="ti ti-scan"></i></button>
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search"></i>
+      <input type="text" placeholder="カード名で絞り込み" id="card-search" oninput="filterCards()" />
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-lbl">総枚数</div><div class="stat-val" id="s-total">0</div></div>
+    <div class="stat-box"><div class="stat-lbl">種類</div><div class="stat-val" id="s-kinds">0</div></div>
+  </div>
+  <div class="filter-scroll">
+    <button class="chip active" onclick="setChip(this,'all')">すべて</button>
+    <button class="chip" onclick="setChip(this,'SR')">SR・SA</button>
+    <button class="chip" onclick="setChip(this,'RR')">RR・UR</button>
+    <button class="chip" onclick="setChip(this,'R')">R</button>
+    <button class="chip" onclick="setChip(this,'C')">C・U</button>
+    <button class="chip" onclick="setChip(this,'dupe')">重複あり</button>
+  </div>
+  <div class="card-grid" id="card-grid"></div>
+  <nav class="navbar">
+    <div class="nav-item active"><i class="ti ti-layout-grid"></i><span>コレクション</span></div>
+    <div class="nav-item" onclick="navTo('scan')"><i class="ti ti-scan"></i><span>スキャン</span></div>
+    <div class="nav-item" onclick="navTo('stats')"><i class="ti ti-chart-bar"></i><span>統計</span></div>
+    <div class="nav-item" onclick="navTo('mypage')"><i class="ti ti-user"></i><span>マイページ</span></div>
+  </nav>
+</div>
 
-  <script src="app.js"></script>
+<!-- DETAIL -->
+<div class="page slide-right" id="p-detail">
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn" onclick="navTo('cards')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title" id="d-title">カード詳細</span>
+      <div style="width:36px;"></div>
+    </div>
+  </div>
+  <div class="detail-art" id="d-art"></div>
+  <div class="detail-body">
+    <div class="detail-name" id="d-name"></div>
+    <div class="detail-set-label" id="d-set-label"></div>
+    <div class="qty-wrap">
+      <div><div class="qty-label">所持枚数</div><div class="qty-sublabel">同じカードをまとめて管理</div></div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <div class="qty-num" id="d-qty">1</div>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-row"><span class="dr-key">レアリティ</span><span class="dr-val gold" id="d-rarity"></span></div>
+      <div class="detail-row"><span class="dr-key">タイプ</span><span class="dr-val" id="d-type"></span></div>
+      <div class="detail-row"><span class="dr-key">セット</span><span class="dr-val" id="d-setname"></span></div>
+      <div class="detail-row"><span class="dr-key">カード番号</span><span class="dr-val" id="d-num"></span></div>
+      <div class="detail-row"><span class="dr-key">取得日</span><span class="dr-val" id="d-date"></span></div>
+    </div>
+    <div class="action-grid">
+      <button class="action-btn danger" onclick="deleteCard()"><i class="ti ti-trash"></i> 削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div class="page slide-right" id="p-scan">
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn" onclick="stopScan();navTo('home')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title">カードスキャン</span>
+      <div style="width:36px;"></div>
+    </div>
+  </div>
+  <div class="scan-page-body">
+    <div class="scan-camera-wrap" id="scan-camera-wrap">
+      <video id="scan-video" autoplay playsinline muted></video>
+      <div class="scan-frame-overlay">
+        <div class="scan-corner sc-tl"></div>
+        <div class="scan-corner sc-tr"></div>
+        <div class="scan-corner sc-bl"></div>
+        <div class="scan-corner sc-br"></div>
+        <div class="scan-line"></div>
+      </div>
+      <div class="scan-hint">カードをフレームに合わせてください</div>
+    </div>
+    <canvas id="scan-canvas" style="display:none;"></canvas>
+    <div class="scan-tcg-select">
+      <div class="scan-label-sm">スキャン対象のTCG</div>
+      <select class="scan-select" id="scan-tcg-select"></select>
+    </div>
+    <div class="scan-actions" id="scan-actions">
+      <button class="scan-shutter" onclick="captureAndAnalyze()"><i class="ti ti-camera"></i></button>
+      <button class="scan-gallery-btn" onclick="document.getElementById('scan-file-input').click()">
+        <i class="ti ti-photo"></i> ギャラリーから
+      </button>
+      <input type="file" id="scan-file-input" accept="image/*" style="display:none" onchange="analyzeFromFile(event)" />
+    </div>
+    <div class="scan-analyzing hidden" id="scan-analyzing">
+      <div class="scan-spinner"></div>
+      <div class="scan-analyzing-text" id="scan-analyzing-text">AIが解析中...</div>
+    </div>
+    <div class="scan-result hidden" id="scan-result">
+      <div class="scan-result-header"><i class="ti ti-check"></i> カード情報を認識しました</div>
+      <div class="scan-result-body" id="scan-result-body"></div>
+      <div class="scan-result-footer">
+        <button class="scan-result-edit" onclick="openOverlay('edit-result-overlay')"><i class="ti ti-edit"></i> 修正する</button>
+        <button class="scan-result-add" onclick="addScannedCard()"><i class="ti ti-plus"></i> 追加する</button>
+      </div>
+    </div>
+    <div class="scan-error hidden" id="scan-error">
+      <div class="scan-error-text" id="scan-error-text"></div>
+      <button class="scan-retry" onclick="resetScan()">もう一度試す</button>
+    </div>
+    <div class="hidden" id="scan-no-key">
+      <div style="text-align:center;padding:24px 16px;background:var(--bg-primary);border-radius:var(--radius-lg);">
+        <div style="font-size:40px;margin-bottom:12px;">🔑</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:6px;">APIキーが設定されていません</div>
+        <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:20px;">スキャン機能にはGemini APIキーが必要です</div>
+        <button class="scan-result-add" onclick="navTo('settings')">設定画面へ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="page slide-right" id="p-stats">
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn" onclick="navTo('home')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title">統計</span>
+      <div style="width:36px;"></div>
+    </div>
+  </div>
+  <div class="content" id="stats-content"></div>
+</div>
+
+<!-- MYPAGE -->
+<div class="page slide-right" id="p-mypage">
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn" onclick="navTo('home')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title">マイページ</span>
+      <div style="width:36px;"></div>
+    </div>
+  </div>
+  <div class="content" id="mypage-content"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page slide-right" id="p-settings">
+  <div class="topbar">
+    <div class="topbar-row">
+      <button class="back-btn" onclick="navTo('home')"><i class="ti ti-arrow-left"></i></button>
+      <span class="page-title">設定</span>
+      <div style="width:36px;"></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="settings-section">
+      <div class="settings-label">スキャン設定</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div><div class="settings-row-title">Gemini APIキー</div><div class="settings-row-sub" id="apikey-status">未設定</div></div>
+          <button class="settings-btn" onclick="openApiKeyEdit()">変更</button>
+        </div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">表示</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div><div class="settings-row-title">ダークモード</div></div>
+          <label class="toggle"><input type="checkbox" id="dark-toggle" onchange="toggleDark()"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">データ</div>
+      <div class="settings-card">
+        <div class="settings-row" onclick="exportData()" style="cursor:pointer;">
+          <div><div class="settings-row-title">データをエクスポート</div><div class="settings-row-sub">JSONファイルで保存</div></div>
+          <i class="ti ti-chevron-right" style="color:var(--text-tertiary);"></i>
+        </div>
+        <div class="settings-row" onclick="confirmReset()" style="cursor:pointer;border-top:0.5px solid var(--border-light);">
+          <div><div class="settings-row-title" style="color:var(--danger);">全データをリセット</div><div class="settings-row-sub">この操作は取り消せません</div></div>
+          <i class="ti ti-chevron-right" style="color:var(--text-tertiary);"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TCG OVERLAY -->
+<div class="overlay" id="add-tcg-overlay" onclick="overlayBgClick(event,'add-tcg-overlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">TCGを追加</div>
+    <div class="sheet-sub">追加するTCGを選んでください</div>
+    <div class="preset-grid" id="preset-grid"></div>
+    <div class="custom-row">
+      <div class="custom-label">または名前を入力</div>
+      <input class="custom-input" id="add-tcg-input" type="text" placeholder="例：デュエル・マスターズ" oninput="onAddTCGInput()" />
+    </div>
+    <button class="sheet-add-btn" id="add-tcg-btn" disabled onclick="doAddTCG()">追加する</button>
+    <button class="cancel-link" onclick="closeOverlay('add-tcg-overlay')">キャンセル</button>
+  </div>
+</div>
+
+<!-- EDIT RESULT OVERLAY -->
+<div class="overlay" id="edit-result-overlay" onclick="overlayBgClick(event,'edit-result-overlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">カード情報を修正</div>
+    <div class="edit-form" id="edit-form"></div>
+    <button class="sheet-add-btn" onclick="saveEditResult()">保存して追加</button>
+    <button class="cancel-link" onclick="closeOverlay('edit-result-overlay')">キャンセル</button>
+  </div>
+</div>
+
+<!-- APIKEY EDIT OVERLAY -->
+<div class="overlay" id="apikey-edit-overlay" onclick="overlayBgClick(event,'apikey-edit-overlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Gemini APIキーを変更</div>
+    <div class="custom-row" style="margin-top:8px;">
+      <div class="custom-label">APIキー</div>
+      <input class="custom-input" id="apikey-edit-input" type="password" placeholder="AIza..." />
+    </div>
+    <button class="sheet-add-btn" onclick="saveApiKeyEdit()">保存する</button>
+    <button class="cancel-link" onclick="closeOverlay('apikey-edit-overlay')">キャンセル</button>
+  </div>
+</div>
+
+<!-- CONFIRM OVERLAY -->
+<div class="overlay" id="confirm-overlay" onclick="overlayBgClick(event,'confirm-overlay')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="confirm-title"></div>
+    <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:20px;" id="confirm-msg"></div>
+    <button class="sheet-add-btn danger" id="confirm-ok-btn">実行する</button>
+    <button class="cancel-link" onclick="closeOverlay('confirm-overlay')">キャンセル</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
 </body>
 </html>
