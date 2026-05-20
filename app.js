@@ -458,11 +458,28 @@ async function analyzeImage(base64) {
     clearInterval(textInterval);
     analyzing.classList.add('hidden');
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('解析結果が取得できませんでした');
+    // APIエラーチェック
+    if (data.error) throw new Error('APIエラー: ' + (data.error.message || data.error.status));
 
-    const result = JSON.parse(jsonMatch[0]);
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!text) throw new Error('AIから応答がありませんでした');
+
+    // JSON部分を抽出（```json ... ``` や { ... } 形式に対応）
+    let jsonStr = text;
+    const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) {
+      jsonStr = fenceMatch[1].trim();
+    } else {
+      const braceMatch = text.match(/\{[\s\S]*\}/);
+      if (braceMatch) jsonStr = braceMatch[0];
+    }
+
+    let result;
+    try {
+      result = JSON.parse(jsonStr);
+    } catch(pe) {
+      throw new Error('解析結果を読み取れませんでした。もう一度試してください');
+    }
     if (result.error) throw new Error(result.error);
 
     result.tcgId = tcgSel.value;
