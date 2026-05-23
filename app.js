@@ -442,7 +442,7 @@ async function analyzeImage(base64) {
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -459,7 +459,24 @@ async function analyzeImage(base64) {
     analyzing.classList.add('hidden');
 
     // APIエラーチェック
-    if (data.error) throw new Error('APIエラー: ' + (data.error.message || data.error.status));
+    if (data.error) {
+      const msg = data.error.message || '';
+      let jpMsg = 'APIエラーが発生しました';
+      if (msg.includes('quota') || msg.includes('Quota') || msg.includes('exceeded')) {
+        jpMsg = '無料枠の上限に達しました。新しいAPIキーを作成してください';
+      } else if (msg.includes('expired') || msg.includes('key expired')) {
+        jpMsg = 'APIキーの有効期限が切れています。新しいキーを作成してください';
+      } else if (msg.includes('not found') || msg.includes('not supported')) {
+        jpMsg = 'AIモデルにアクセスできませんでした。しばらくしてから再試行してください';
+      } else if (msg.includes('invalid') || msg.includes('API_KEY_INVALID')) {
+        jpMsg = 'APIキーが無効です。設定画面で正しいキーを入力してください';
+      } else if (msg.includes('permission') || msg.includes('PERMISSION_DENIED')) {
+        jpMsg = 'APIキーの権限がありません。キーを確認してください';
+      } else if (msg.includes('rate') || msg.includes('RATE_LIMIT')) {
+        jpMsg = 'アクセスが集中しています。少し待ってから再試行してください';
+      }
+      throw new Error(jpMsg);
+    }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!text) throw new Error('AIから応答がありませんでした');
